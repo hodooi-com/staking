@@ -32,11 +32,11 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers cookie={(await headers()).get("cookie") || ""}>
-          <div className="flex flex-col min-h-screen">
-            <main className="flex-grow flex items-center justify-center px-4 sm:px-6 lg:px-8">
+          <div className="flex min-h-screen flex-col">
+            <main className="flex flex-grow items-center justify-center px-4 sm:px-6 lg:px-8">
               {children}
             </main>
-            <footer className="text-center text-sm text-muted-foreground py-8 flex justify-center items-center gap-1">
+            <footer className="flex items-center justify-center gap-1 py-8 text-center text-sm text-muted-foreground">
               Powered by{" "}
               <Link href="https://liteflow.com">
                 <Image
