@@ -29,9 +29,8 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-muted/50`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-accent/20 blur-xl -z-10" />
         <Providers cookie={(await headers()).get("cookie") || ""}>
           <div className="flex flex-col min-h-screen">
             <main className="flex-grow flex items-center justify-center px-4 sm:px-6 lg:px-8">
