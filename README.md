@@ -94,7 +94,7 @@ The project is designed to be deployed to Vercel. You can deploy the project by 
 Make sure to have the envs in the file `.env.production`.
 
 ```bash
-docker build -t IMAGE_TAG --platform linux/amd64 --push .
+docker build -t registry.digitalocean.com/nft-marketplace/hodooi-staking --platform linux/amd64 --push .
 ```
 
 ## Contributing
