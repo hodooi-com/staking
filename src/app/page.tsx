@@ -27,17 +27,19 @@ export default async function Home() {
         <p className="text-center text-muted-foreground">No stakings found</p>
       ) : (
         <Tabs defaultValue={id(stakings[0])} className="w-full">
-          <TabsList className="mb-20 h-auto w-full flex-col justify-between gap-4 md:flex-row">
-            {stakings.map((staking, i) => (
-              <TabsTrigger
-                key={i}
-                value={id(staking)}
-                className="w-full py-2 font-semibold"
-              >
-                {staking.name}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          {stakings.length > 1 && (
+            <TabsList className="mb-20 h-auto w-full flex-col justify-between gap-4 md:flex-row">
+              {stakings.map((staking, i) => (
+                <TabsTrigger
+                  key={i}
+                  value={id(staking)}
+                  className="w-full py-2 font-semibold"
+                >
+                  {staking.name}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          )}
           {stakings.map((staking, i) => (
             <TabsContent key={i} value={id(staking)}>
               <Staking

@@ -34,7 +34,7 @@ export default async function RootLayout({
       >
         <Providers cookie={(await headers()).get("cookie")}>
           <div className="flex min-h-screen flex-col">
-            <main className="mt-4 flex flex-grow px-4 sm:px-6 md:mt-40 lg:px-8">
+            <main className="flex flex-grow items-center justify-center px-4 sm:px-6 lg:px-8">
               {children}
             </main>
             <footer className="flex items-center justify-center gap-1 py-8 text-center text-sm text-muted-foreground">
