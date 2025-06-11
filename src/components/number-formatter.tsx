@@ -1,9 +1,9 @@
-import { formatUnits as baseFormatUnit } from "viem";
+import { formatUnits as baseFormatUnit, maxUint256 } from "viem";
 
-const { format } = new Intl.NumberFormat("en", {
+const formatter = new Intl.NumberFormat("en", {
   notation: "compact",
   compactDisplay: "short",
-  maximumFractionDigits: 3,
+  maximumFractionDigits: 4,
 });
 
 export function NumberFormatter({
@@ -17,7 +17,11 @@ export function NumberFormatter({
   if (value === undefined) return "--";
   return (
     <span title={value.toString()} className="font-mono">
-      {format(parseFloat(baseFormatUnit(BigInt(value), decimals)))}
+      {BigInt(value) === maxUint256 ? (
+        <>&infin;</>
+      ) : (
+        formatter.format(parseFloat(baseFormatUnit(BigInt(value), decimals)))
+      )}
     </span>
   );
 }

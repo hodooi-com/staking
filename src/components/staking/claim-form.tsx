@@ -2,73 +2,64 @@
 
 import { NumberFormatter } from "@/components/number-formatter";
 import { Button } from "@/components/ui/button";
-import useStakingPosition, {
-  stakingPositionKey,
-} from "@/hooks/useStakingPosition";
-import { GetStakingsByChainIdByAddressResponse } from "@liteflow/sdk/dist/client";
+import useClaim from "@/hooks/useClaim";
+import {
+  GetStakingsByChainIdByAddressPositionsByUserAddressResponse,
+  GetStakingsByChainIdByAddressResponse,
+} from "@liteflow/sdk/dist/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Address } from "viem";
+import { LockIcon } from "lucide-react";
+import { useMemo } from "react";
 import { waitForTransactionReceipt } from "viem/actions";
-import { useAccount, useClient, useSwitchChain, useWriteContract } from "wagmi";
+import { useClient, useSwitchChain } from "wagmi";
 
 export default function ClaimForm({
   staking,
+  position,
 }: {
   staking: GetStakingsByChainIdByAddressResponse;
+  position:
+    | GetStakingsByChainIdByAddressPositionsByUserAddressResponse
+    | undefined;
 }) {
-  const account = useAccount();
-  const position = useStakingPosition(
-    staking.chainId,
-    staking.contractAddress,
-    account.address as Address
-  );
-
   const queryClient = useQueryClient();
   const client = useClient({ chainId: staking.chainId });
   const chain = useSwitchChain();
-  const claimTx = useWriteContract();
-  const claim = useMutation({
+  const claim = useClaim();
+  const unlockDate = useMemo(() => {
+    if (!position) return new Date();
+    return new Date(
+      position.updatedAt.getTime() + Number(staking.lockPeriod) * 1000
+    );
+  }, [position, staking]);
+  const isLocked = useMemo(
+    () => (staking.flexibleClaim ? false : unlockDate > new Date()),
+    [unlockDate, staking.flexibleClaim]
+  );
+  const claimAndRefetch = useMutation({
     mutationFn: async () => {
+      if (isLocked) throw new Error("Early claim not allowed");
       if (!client) throw new Error("Client not found");
       await chain.switchChainAsync({ chainId: staking.chainId });
-      const hash = await claimTx.writeContractAsync({
-        chainId: staking.chainId,
-        abi: [
-          {
-            inputs: [],
-            name: "claimRewards",
-            outputs: [],
-            stateMutability: "nonpayable",
-            type: "function",
-          },
-        ] as const,
-        address: staking.contractAddress as Address,
-        functionName: "claimRewards",
-      });
+      const hash = await claim.mutateAsync(staking);
       await waitForTransactionReceipt(client, { hash });
-      await queryClient.invalidateQueries({
-        queryKey: stakingPositionKey({
-          chainId: staking.chainId,
-          address: staking.contractAddress,
-          userAddress: account.address as Address,
-        }),
-      });
+      await queryClient.invalidateQueries();
     },
   });
 
-  if (!position.data) return null;
   return (
     <Button
-      variant="ghost"
-      onClick={() => claim.mutate()}
-      isLoading={claim.isPending}
-      disabled={BigInt(position.data.rewards) <= BigInt(0)}
+      variant="outline"
+      onClick={() => claimAndRefetch.mutate()}
+      isLoading={claimAndRefetch.isPending}
+      disabled={BigInt(position?.rewards ?? 0) <= BigInt(0) || isLocked}
     >
-      {staking.rewardCurrency?.symbol}
+      {isLocked && <LockIcon className="size-4" />}
       <NumberFormatter
-        value={position.data.rewards}
-        decimals={staking.rewardCurrency?.decimals}
+        value={position?.rewards ?? 0}
+        decimals={staking.rewardToken?.decimals}
       />{" "}
+      {staking.rewardToken?.symbol}
     </Button>
   );
 }
