@@ -23,7 +23,7 @@ export default function Staking({
   const account = useAccount();
   const staking = useStaking(chainId, address);
   const position = useStakingPosition(chainId, address, account.address);
-  const [tab, setTab] = useState<"stake" | "withdraw">("stake");
+  const [tab, setTab] = useState<"stake" | "withdraw">("withdraw");
   const [simulation, setSimulation] = useState<{
     amount: string;
     nftIds: string[];
@@ -57,7 +57,7 @@ export default function Staking({
           >
             <CardHeader>
               <TabsList className="grid grid-cols-2">
-                <TabsTrigger value="stake">
+                <TabsTrigger value="stake" disabled>
                   <PlusIcon className="mr-2 size-4" /> Stake
                 </TabsTrigger>
                 <TabsTrigger value="withdraw">
